@@ -153,11 +153,7 @@ func (md Markdown) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error
 					return http.StatusInternalServerError, err
 				}
 
-				ctx := middleware.Context{
-					Root: md.FileSys,
-					Req:  r,
-					URL:  r.URL,
-				}
+				ctx := middleware.NewContext(md.FileSys, r, md)
 				html, err := md.Process(cfg, fpath, body, ctx)
 				if err != nil {
 					return http.StatusInternalServerError, err

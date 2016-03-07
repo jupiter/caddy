@@ -101,11 +101,11 @@ func (md Markdown) processTemplate(c *Config, requestPath string, tmpl []byte, m
 		return nil, err
 	}
 	mdData := Data{
-		Context:  ctx,
 		Doc:      metadata.Variables,
 		DocFlags: metadata.Flags,
 		Links:    c.Links,
 	}
+	mdData.Context = middleware.NewContext(ctx.Root, ctx.Req, mdData)
 
 	c.RLock()
 	err = t.Execute(b, mdData)

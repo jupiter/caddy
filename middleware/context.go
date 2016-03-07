@@ -16,12 +16,21 @@ import (
 // This file contains the context and functions available for
 // use in the templates.
 
+func NewContext(root http.FileSystem, req *http.Request, includeCtx interface{}) Context {
+	return Context{
+		Root:          root,
+		Req:           req,
+		URL:           req.URL,
+		parentContext: includeCtx,
+	}
+}
+
 // Context is the context with which Caddy templates are executed.
 type Context struct {
-	Root http.FileSystem
-	Req  *http.Request
-	// This is used to access information about the URL.
-	URL *url.URL
+	Root          http.FileSystem
+	Req           *http.Request
+	URL           *url.URL
+	parentContext interface{}
 }
 
 // Include returns the contents of filename relative to the site root
@@ -42,8 +51,13 @@ func (c Context) Include(filename string) (string, error) {
 		return "", err
 	}
 
+	ctx := c.parentContext
+	if ctx == nil {
+		ctx = c
+	}
+
 	var buf bytes.Buffer
-	err = tpl.Execute(&buf, c)
+	err = tpl.Execute(&buf, ctx)
 	if err != nil {
 		return "", err
 	}
